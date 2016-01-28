@@ -1,5 +1,5 @@
 # Site settings
-title: Georgy Lukyanov
+title: Georgiy Lukjanov
 description: Photos. Code. Mindflow.
 url: 'http://geo2a.github.io' 
 baseurl: '/'
@@ -7,7 +7,7 @@ baseurl: '/'
 
 author:
   name: 'Georgy Lukyanov'
-  email: georgy.lukyanov@gmail.com
+  email: georgiylukjanov@gmail.com
   twitter_username: geo2a
   github_username:  geo2a
   facebook_username: georgiyl
