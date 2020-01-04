@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Georgy Lukyanov - Agda-like Equational Reasoning in Coq using Tactic Notations</title>
+        <link rel="stylesheet" href="../css/default.css" />
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Georgy Lukyanov</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <!-- <a href="/about.html">About</a>
+                <a href="/contact.html">Contact</a>
+                <a href="/archive.html">Archive</a> -->
+            </nav>
+        </header>
+
+        <main role="main">
+            <!-- <h1>Agda-like Equational Reasoning in Coq using Tactic Notations</h1> -->
+            <article>
+    <section class="header">
+        Posted on January  4, 2020
+        
+    </section>
+    <section>
+        <h1 id="agda-like-equational-reasoning-in-coq-using-tactic-notations">Agda-like Equational Reasoning in Coq using Tactic Notations</h1>
+<p>I am used to think that there are two major styles of mechanised proofs: Agda-style proofs that effectively spell out the proof terms and Coq-style proofs that are constructed using tactics.</p>
+<p>I like Coq’s approach since it allows me to poke my goals with tactics interactively and to <em>think less hard</em> about the exact way some lemma should be applied. However, proof scripts very quickly become impossible to understand without stepping through them interactively. In Agda, proofs are often written in equatrional reasoning style using mixfix proof combinators, like that:</p>
+<div class="sourceCode"><pre class="sourceCode agda"><code class="sourceCode agda">+-comm <span class="ot">:</span> <span class="ot">∀</span> <span class="ot">(</span>m n <span class="ot">:</span> ℕ<span class="ot">)</span> <span class="ot">→</span> m + n ≡ n + m
++-comm m zero <span class="ot">=</span>
+  begin
+    m + zero
+  ≡⟨ +-identityʳ m ⟩
+    m
+  ≡⟨⟩
+    zero + m
+  ∎
++-comm m <span class="ot">(</span>suc n<span class="ot">)</span> <span class="ot">=</span>
+  begin
+    m + suc n
+  ≡⟨ +-suc m n ⟩
+    suc <span class="ot">(</span>m + n<span class="ot">)</span>
+  ≡⟨ cong suc <span class="ot">(</span>+-comm m n<span class="ot">)</span> ⟩
+    suc <span class="ot">(</span>n + m<span class="ot">)</span>
+  ≡⟨⟩
+    suc n + m
+  ∎</code></pre></div>
+<p>this lemma proves commutativity of addition of natural numbers by structural induction, justifying the equational reasoning steps with the ≡⟨ necessary lemmas ⟩.</p>
+<p>I find Agda’s style much friendlier to the naked eye. Why can’t I have it in Coq? Well, actually, I can! Here is a Coq proof of the same theorem that closely mimics the Agda one:</p>
+<pre class="coq"><code>Theorem plus_comm :
+  forall (m n : nat), m + n = n + m.
+Proof.
+  intros m n.
+  induction n.
+  - `Begin
+     (m + 0).
+    ≡⟨ now rewrite &lt;- plus_n_O ⟩
+     (m).
+    ≡⟨ reflexivity ⟩
+     (0 + m)
+    `End.
+  - `Begin
+     (m + S n).
+    ≡⟨ now rewrite plus_n_Sm ⟩
+     (S (m + n)).
+    ≡⟨ now rewrite IHn ⟩
+     (S (n + m)).
+    ≡⟨ reflexivity ⟩
+     (S n + m)
+    `End.
+Qed.</code></pre>
+<p>Neat, isn’t it? We invoke the <code>induction</code> tactic generating two subgoals, with which we deal in the same style that we used in Agda! To achieve this, we need two ingredients: one somewhat arcane (but standard) tactic and Tactic Notations to make it look prettier.</p>
+<h2 id="tactic-notations-stepl-equational-reasoning">Tactic Notations + <code>stepl</code> = Equational Reasoning!</h2>
+<p>Coq proofs consist of tactics which when invoked generate the actual proof terms that are type-checked by Coq. This is great, but since the proof terms are hidden, it is not always straightforward to understand a proof script without stepping through it interactively. What I wanted to have instead is a neat way to spell out intermediate proof terms literally and use tactics to justify the rewriting steps connecting these intermediate terms. To do that, we can use a rather obscure tactic <a href="https://coq.inria.fr/refman/proof-engine/tactics.html#coq:tacn.stepl"><code>stepl term by tactic</code></a> which does exactly what we want: transforms the left hand-side of the current equality goal into the <code>term</code> we supply with a <code>tactic</code> we give. To make it look more like Agda, we throw in some pretty Unicode characters and put the justifying tactic first by using a Tactic Notation:</p>
+<pre class="coq"><code>Tactic Notation
+  &quot;≡⟨ &quot; tactic(proof) &quot;⟩&quot; constr(rhs) :=
+  (stepl rhs by proof).</code></pre>
+<p>Note how the arguments are passed to the notation: the <code>proof</code> is specified to be an Ltac term (<code>tactic</code>), and <code>rhs</code> — a kernel term (<code>constr</code>).</p>
+<p>This approach is if course not the perfect emulation of Agda-style equational reasoning since it does not support holes and inherits Coq’s stepwise proof editing style, i.e. it is not as easy to switch between forward and backward reasoning as in Agda. Though it is still possible to sketch proofs and skip steps, since one could use the <code>admit</code> tactic as justification for any rewriting step. More importantly, we gain something which Agda does not have: between rewriting step we can use the usual Coq interactive proof style of transforming the goal with tactics to experiment and find the next rewriting step; after that we could petrify the interactive proof exploration into a sequence if clear equational reasoning steps.</p>
+<p>A quick Google search gives a number of hits on how to use equational reasoning in Coq, but most of the project seem to be developing some heavy machinery and are not straightforward to use. Among the first hits however is <a href="https://gist.github.com/gallais/f046bcc2c348c5fed5e9">this gist</a>, which is very lightweight and has given me the initial inspiration. It is much more limited though since the trick it proposes does not allow skipping proof steps with <code>admit</code>.</p>
+<p>I have used this style to prove that <a href="https://github.com/snowleopard/selective">Free Rigid Selective</a> is a lawful instance of <code>Applicative</code>, you may take a look at the proof scripts <a href="https://github.com/tuura/selective-theory-coq/blob/26fed67487ba9b2f085b9a3ea19168b8684bb0f1/src/Control/Selective/Rigid/Proofs/Applicative.v#L123">here</a>.</p>
+<p>Since this post has been inspired by a Github Gist, I’ve put the accompanying Coq code in one too; here is <a href="https://gist.github.com/geo2a/31381aeb345c789761504da1b5d42168">how to do lightweight equational reasoning in Coq</a>.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
