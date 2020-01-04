@@ -4,7 +4,7 @@ title: Agda-like Equational Reasoning in Coq using Tactic Notations
 
 # Agda-like Equational Reasoning in Coq using Tactic Notations
 
-I am used to think that there are two major styles of mechanised proofs:
+I am used to the idea that there are two major styles of mechanised proofs:
 Agda-style proofs that effectively spell out the proof terms and
 Coq-style proofs that are constructed using tactics.
 
@@ -12,7 +12,7 @@ I like Coq's approach since it allows me to poke my goals with tactics
 interactively and to *think less hard* about the exact way some lemma
 should be applied. However, proof scripts very quickly become impossible
 to understand without stepping through them interactively. In Agda,
-proofs are often written in equatrional reasoning style using mixfix
+proofs are often written in equational reasoning style using mixfix
 proof combinators, like that:
 
 ``` {.sourceCode .agda}
@@ -37,7 +37,7 @@ proof combinators, like that:
   ∎
 ```
 
-this lemma proves commutativity of addition of natural numbers by
+This lemma proves commutativity of addition of natural numbers by
 structural induction, justifying the equational reasoning steps with the
 ≡⟨ necessary lemmas ⟩.
 
@@ -102,7 +102,7 @@ Note how the arguments are passed to the notation: the `proof` is
 specified to be an Ltac term (`tactic`), and `rhs` --- a kernel term
 (`constr`).
 
-This approach is if course not the perfect emulation of Agda-style
+This approach is of course not the perfect emulation of Agda-style
 equational reasoning since it does not support holes and inherits Coq's
 stepwise proof editing style, i.e. it is not as easy to switch between
 forward and backward reasoning as in Agda. Though it is still possible
@@ -111,11 +111,11 @@ as justification for any rewriting step. More importantly, we gain
 something which Agda does not have: between rewriting step we can use
 the usual Coq interactive proof style of transforming the goal with
 tactics to experiment and find the next rewriting step; after that we
-could petrify the interactive proof exploration into a sequence if clear
+could petrify the interactive proof exploration into a sequence of clear
 equational reasoning steps.
 
 A quick Google search gives a number of hits on how to use equational
-reasoning in Coq, but most of the project seem to be developing some
+reasoning in Coq, but most of the projects seem to be developing some
 heavy machinery and are not straightforward to use. Among the first hits
 however is [this
 gist](https://gist.github.com/gallais/f046bcc2c348c5fed5e9), which is
