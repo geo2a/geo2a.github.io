@@ -16,7 +16,7 @@ git checkout -b master --track origin/master
 
 # Overwrite existing files with new files
 rsync -a --filter='P _site/'      \
-         --filter='P _cache/'     \
+#          --filter='P _cache/'     \
          --filter='P .git/'       \
          --filter='P .gitignore'  \
          --filter='P .stack-work' \
