@@ -31,25 +31,25 @@
         <h1 id="agda-like-equational-reasoning-in-coq-using-tactic-notations">Agda-like Equational Reasoning in Coq using Tactic Notations</h1>
 <p>I am used to the idea that there are two major styles of mechanised proofs: Agda-style proofs that effectively spell out the proof terms and Coq-style proofs that are constructed using tactics.</p>
 <p>I like Coq’s approach since it allows me to poke my goals with tactics interactively and to <em>think less hard</em> about the exact way some lemma should be applied. However, proof scripts very quickly become impossible to understand without stepping through them interactively. In Agda, proofs are often written in equational reasoning style using mixfix proof combinators, like that:</p>
-<div class="sourceCode"><pre class="sourceCode agda"><code class="sourceCode agda">+-comm <span class="ot">:</span> <span class="ot">∀</span> <span class="ot">(</span>m n <span class="ot">:</span> ℕ<span class="ot">)</span> <span class="ot">→</span> m + n ≡ n + m
-+-comm m zero <span class="ot">=</span>
-  begin
-    m + zero
-  ≡⟨ +-identityʳ m ⟩
-    m
-  ≡⟨⟩
-    zero + m
-  ∎
-+-comm m <span class="ot">(</span>suc n<span class="ot">)</span> <span class="ot">=</span>
-  begin
-    m + suc n
-  ≡⟨ +-suc m n ⟩
-    suc <span class="ot">(</span>m + n<span class="ot">)</span>
-  ≡⟨ cong suc <span class="ot">(</span>+-comm m n<span class="ot">)</span> ⟩
-    suc <span class="ot">(</span>n + m<span class="ot">)</span>
-  ≡⟨⟩
-    suc n + m
-  ∎</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode agda"><code class="sourceCode agda"><span id="cb1-1"><a href="#cb1-1"></a>+-comm <span class="ot">:</span> <span class="ot">∀</span> <span class="ot">(</span>m n <span class="ot">:</span> ℕ<span class="ot">)</span> <span class="ot">→</span> m + n ≡ n + m</span>
+<span id="cb1-2"><a href="#cb1-2"></a>+-comm m zero <span class="ot">=</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a>  begin</span>
+<span id="cb1-4"><a href="#cb1-4"></a>    m + zero</span>
+<span id="cb1-5"><a href="#cb1-5"></a>  ≡⟨ +-identityʳ m ⟩</span>
+<span id="cb1-6"><a href="#cb1-6"></a>    m</span>
+<span id="cb1-7"><a href="#cb1-7"></a>  ≡⟨⟩</span>
+<span id="cb1-8"><a href="#cb1-8"></a>    zero + m</span>
+<span id="cb1-9"><a href="#cb1-9"></a>  ∎</span>
+<span id="cb1-10"><a href="#cb1-10"></a>+-comm m <span class="ot">(</span>suc n<span class="ot">)</span> <span class="ot">=</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a>  begin</span>
+<span id="cb1-12"><a href="#cb1-12"></a>    m + suc n</span>
+<span id="cb1-13"><a href="#cb1-13"></a>  ≡⟨ +-suc m n ⟩</span>
+<span id="cb1-14"><a href="#cb1-14"></a>    suc <span class="ot">(</span>m + n<span class="ot">)</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a>  ≡⟨ cong suc <span class="ot">(</span>+-comm m n<span class="ot">)</span> ⟩</span>
+<span id="cb1-16"><a href="#cb1-16"></a>    suc <span class="ot">(</span>n + m<span class="ot">)</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a>  ≡⟨⟩</span>
+<span id="cb1-18"><a href="#cb1-18"></a>    suc n + m</span>
+<span id="cb1-19"><a href="#cb1-19"></a>  ∎</span></code></pre></div>
 <p>This lemma proves commutativity of addition of natural numbers by structural induction, justifying the equational reasoning steps with the ≡⟨ necessary lemmas ⟩.</p>
 <p>I find Agda’s style much friendlier to the naked eye. Why can’t I have it in Coq? Well, actually, I can! Here is a Coq proof of the same theorem that closely mimics the Agda one:</p>
 <pre class="coq"><code>Theorem plus_comm :
